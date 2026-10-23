@@ -1,0 +1,6 @@
+.next
+node_modules
+public
+assets-src
+pnpm-lock.yaml
+README.md

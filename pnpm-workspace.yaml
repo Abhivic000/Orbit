@@ -1,0 +1,8 @@
+onlyBuiltDependencies:
+  - sharp
+  - unrs-resolver
+  - esbuild
+
+# Dev tooling (gltfjsx) pins an old sharp with libvips CVEs; force the patched one.
+overrides:
+  sharp: ^0.35.5

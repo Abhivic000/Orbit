@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+/* Layout variants — keep in sync with lib/layout.ts.
+   side:  copy and model side by side (≥ 1024px wide, or any landscape screen)
+   short: little vertical room (landscape phones, small laptop windows) */
+/* Block form: the shorthand silently dropped the second (comma) query. */
+@custom-variant side {
+  @media (min-width: 1024px) {
+    @slot;
+  }
+  @media (min-aspect-ratio: 6/5) {
+    @slot;
+  }
+}
+@custom-variant short (@media (max-height: 640px));
+
+/* ── Studio tokens ─────────────────────────────────────── */
+:root {
+  --sweep: #dce0e5; /* backdrop; the canvas clear colour follows this */
+  --sweep-shadow: #b9c0c9;
+  --ink: #1e2228;
+  /* Darkened from #5A626D so secondary text passes AA (≥ 4.5:1) on all four
+     colourway tints — #5A626D was 4.32:1 on Basalt. */
+  --ink-soft: #4f5661;
+  --focus: #2557d6;
+
+  /* Colourways: product + matching backdrop tint */
+  --basalt: #2b2d31;
+  --basalt-sweep: #d6d8db;
+  --glacier: #cfe3ea;
+  --glacier-sweep: #e4eef1;
+  --moss: #5e6b4a;
+  --moss-sweep: #dde2d4;
+  --signal: #f25c05;
+  --signal-sweep: #f3ddd0;
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-sweep: var(--sweep);
+  --color-sweep-shadow: var(--sweep-shadow);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-focus: var(--focus);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale (rem): 0.875 · 1 · 1.25 · 2 · 3.5 · 6 */
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-2xl: 2rem;
+  --text-5xl: 3.5rem;
+  --text-hero: 6rem;
+}
+
+html {
+  background: var(--sweep);
+}
+
+body {
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* Fallback/first-paint backdrop: the same studio sweep the canvas draws. */
+  background: radial-gradient(120% 90% at 60% 40%, var(--sweep) 55%, var(--sweep-shadow) 130%);
+  background-attachment: fixed;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Lenis recommended styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* Pre-rendered stills only show when the 3D scene is off (fallback tier). */
+[data-fallback-only] {
+  display: none;
+}
+html[data-tier="fallback"] [data-fallback-only] {
+  display: block;
+}
+html[data-tier="fallback"] [data-3d-only] {
+  display: none;
+}
+/* Without the 3D beats there is nothing to pin: sections flow normally. */
+html[data-tier="fallback"] [data-section] {
+  height: auto !important;
+}
+html[data-tier="fallback"] [data-section] > div {
+  position: static;
+  height: auto;
+  padding-block: 6rem 2rem;
+}
+
+/* Vignette over the canvas — cheap stand-in for the postprocessing vignette on low tier. */
+.studio-vignette {
+  background: radial-gradient(
+    130% 100% at 55% 45%,
+    transparent 50%,
+    color-mix(in srgb, var(--sweep-shadow) 55%, transparent) 120%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+@keyframes tick {
+  0% {
+    transform: translateY(-60%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Capture mode (?still=1) for rendering the fallback stills: canvas only. */
+html[data-still] main,
+html[data-still] header,
+html[data-still] footer,
+html[data-still] .callout-root,
+html[data-still] .hotspot-root,
+html[data-still] .studio-vignette {
+  visibility: hidden !important;
+}
+
+/* High tier draws its vignette in postprocessing instead. */
+html[data-tier="high"] .studio-vignette {
+  display: none;
+}
